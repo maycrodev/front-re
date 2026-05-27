@@ -96,11 +96,15 @@ const AdminLogsSeguridad = () => {
             });
             const datosBrutos = response?.datos ?? [];
 
-            // Ocultar logs huérfanos: sin usuario identificado Y sin ruta
-            // (eventos sueltos sin contexto útil, p.ej. requests sin token).
+            // Ocultar logs huérfanos: sin usuario identificado Y sin ruta.
+            // OJO: el CONCAT del backend retorna " " (espacios) cuando el LEFT JOIN
+            // a usuarios no matchea — por eso hay que trimear antes de evaluar.
             const datosFiltrados = datosBrutos.filter((log) => {
-                const tieneUsuario = !!log.usuario || (!!log.email && log.email !== '-');
-                const tieneRuta = !!(log.ruta && log.ruta.toString().trim());
+                const usuarioStr = (log.usuario || '').toString().trim();
+                const emailStr   = (log.email   || '').toString().trim();
+                const rutaStr    = (log.ruta    || '').toString().trim();
+                const tieneUsuario = usuarioStr !== '' || (emailStr !== '' && emailStr !== '-');
+                const tieneRuta = rutaStr !== '' && rutaStr !== '-';
                 return tieneUsuario && tieneRuta;
             });
 

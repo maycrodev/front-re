@@ -9,6 +9,12 @@
     min-height: 80vh;
 }
 
+/* Sobrescribe el overflow:hidden del wrapper compartido para que la tabla
+   no se corte cuando la columna Ruta tiene URLs largas. */
+.admin-logs-container.security-theme .logs-table-wrapper {
+    overflow-x: auto;
+}
+
 .logs-btn-primary.security-theme {
     background: linear-gradient(135deg, #f59e0b, #d97706);
     box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
