@@ -9,10 +9,45 @@
     min-height: 80vh;
 }
 
-/* Sobrescribe el overflow:hidden del wrapper compartido para que la tabla
-   no se corte cuando la columna Ruta tiene URLs largas. */
+/* Tabla responsiva: wrapper con scroll horizontal y tabla con ancho mínimo
+   para que las columnas no se compriman. Sobrescribe overflow:hidden del
+   wrapper compartido (definido en adminLogsAplicacion.css). */
 .admin-logs-container.security-theme .logs-table-wrapper {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.admin-logs-container.security-theme .logs-table {
+    min-width: 1180px;
+}
+
+/* En viewports angostos: padding compacto y fuente algo menor para que
+   el scroll horizontal sea menos doloroso. */
+@media (max-width: 1024px) {
+    .admin-logs-container.security-theme {
+        padding: 1rem;
+    }
+    .admin-logs-container.security-theme .logs-table th,
+    .admin-logs-container.security-theme .logs-table td {
+        padding: 0.75rem 0.85rem;
+        font-size: 0.82rem;
+    }
+}
+
+/* Scrollbar estilizado solo para esta vista */
+.admin-logs-container.security-theme .logs-table-wrapper::-webkit-scrollbar {
+    height: 10px;
+}
+.admin-logs-container.security-theme .logs-table-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 0 0 16px 16px;
+}
+.admin-logs-container.security-theme .logs-table-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 6px;
+}
+.admin-logs-container.security-theme .logs-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .logs-btn-primary.security-theme {
