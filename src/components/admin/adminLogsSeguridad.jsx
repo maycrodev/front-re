@@ -96,8 +96,13 @@ const AdminLogsSeguridad = () => {
             });
             const datosBrutos = response?.datos ?? [];
 
-            // Validar que se muestren únicamente logs asociados a un usuario
-            const datosFiltrados = datosBrutos.filter(log => log.usuario || (log.email && log.email !== '-'));
+            // Ocultar logs huérfanos: sin usuario identificado Y sin ruta
+            // (eventos sueltos sin contexto útil, p.ej. requests sin token).
+            const datosFiltrados = datosBrutos.filter((log) => {
+                const tieneUsuario = !!log.usuario || (!!log.email && log.email !== '-');
+                const tieneRuta = !!(log.ruta && log.ruta.toString().trim());
+                return tieneUsuario && tieneRuta;
+            });
 
             setLogs(datosFiltrados);
             setTotal(datosFiltrados.length);
