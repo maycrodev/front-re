@@ -95,10 +95,10 @@ const AdminLogsSeguridad = () => {
                 limite: 200,
             });
             const datosBrutos = response?.datos ?? [];
-            
+
             // Validar que se muestren únicamente logs asociados a un usuario
             const datosFiltrados = datosBrutos.filter(log => log.usuario || (log.email && log.email !== '-'));
-            
+
             setLogs(datosFiltrados);
             setTotal(datosFiltrados.length);
         } catch (err) {
