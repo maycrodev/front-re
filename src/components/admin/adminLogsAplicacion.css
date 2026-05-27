@@ -75,6 +75,22 @@
     align-items: flex-end;
 }
 
+/* Versión simplificada: exactamente 4 columnas + botón */
+.logs-filtros-simple {
+    grid-template-columns: 1fr 1fr 1fr 1fr auto;
+}
+
+@media (max-width: 900px) {
+    .logs-filtros-simple {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+@media (max-width: 560px) {
+    .logs-filtros-simple {
+        grid-template-columns: 1fr;
+    }
+}
+
 .logs-filtros-form .filter-group {
     display: flex;
     flex-direction: column;

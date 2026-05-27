@@ -6,9 +6,19 @@ import { getRegistrosAuditoria } from '../../services/auditoriaApi';
 import './adminAuditoria.css';
 
 const formatDate = (value) => {
-    if (!value) return '-';
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return '-';
+    if (value === null || value === undefined || value === '') return '-';
+    
+    let date;
+    if (value instanceof Date) {
+        date = value;
+    } else if (typeof value === 'string' || typeof value === 'number') {
+        const normalized = typeof value === 'string' ? value.replace(' ', 'T') : value;
+        date = new Date(normalized);
+    } else {
+        return '-';
+    }
+    
+    if (isNaN(date.getTime())) return '-';
 
     try {
         return date.toLocaleString('es-BO', {
@@ -17,9 +27,10 @@ const formatDate = (value) => {
             day: '2-digit',
             hour: '2-digit',
             minute: '2-digit',
+            hour12: false,
         });
     } catch {
-        return date.toLocaleString();
+        return date.toISOString().replace('T', ' ').slice(0, 16);
     }
 };
 

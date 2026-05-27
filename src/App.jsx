@@ -89,7 +89,7 @@ function AppContent() {
           path="/"
           element={
             <div className="app-wrapper">
-              <SelectedHeader />
+              <Header />
               <main style={{ minHeight: '80vh' }}><Home /></main>
               <Footer />
             </div>
