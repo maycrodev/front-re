@@ -515,3 +515,69 @@
     justify-content: center;
 }
 
+
+/* Activos existentes chips */
+.activos-existentes-section {
+    margin-bottom: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.activos-existentes-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.6rem;
+}
+
+.activos-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.activo-chip {
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    border: 1.5px solid #cbd5e1;
+    background: #fff;
+    color: #334155;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+
+.activo-chip:hover {
+    border-color: #003366;
+    color: #003366;
+    background: #eff6ff;
+}
+
+.activo-chip-selected {
+    border-color: #003366;
+    background: #003366;
+    color: #fff;
+}
+
+.activo-chip-selected:hover {
+    background: #00254d;
+    color: #fff;
+}
+
+.activo-chip-new {
+    border-color: #10b981;
+    color: #10b981;
+    font-weight: 600;
+}
+
+.activo-chip-new:hover {
+    background: #ecfdf5;
+    border-color: #059669;
+    color: #059669;
+}

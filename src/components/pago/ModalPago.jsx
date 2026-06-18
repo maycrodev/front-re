@@ -197,7 +197,10 @@ const ModalPago = ({ cursos, total: totalProp, onClose, onPagoExitoso }) => {
               <input
                 type="text"
                 value={facturaData.nombre}
-                onChange={(e) => setFacturaData({ ...facturaData, nombre: e.target.value })}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+                  setFacturaData({ ...facturaData, nombre: val });
+                }}
                 placeholder="Ej: Juan Pérez"
                 required
               />
@@ -218,7 +221,10 @@ const ModalPago = ({ cursos, total: totalProp, onClose, onPagoExitoso }) => {
               <input
                 type="text"
                 value={facturaData.nit}
-                onChange={(e) => setFacturaData({ ...facturaData, nit: e.target.value })}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9A-Za-z\-]/g, '');
+                  setFacturaData({ ...facturaData, nit: val });
+                }}
                 placeholder="1234567"
               />
             </div>
@@ -264,6 +270,18 @@ const ModalPago = ({ cursos, total: totalProp, onClose, onPagoExitoso }) => {
               }}>
                 <PayPalButtons
                   style={{ layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay', height: 50 }}
+                  onClick={(data, actions) => {
+                    setError('');
+                    if (!facturaData.nombre.trim() || !facturaData.email.trim()) {
+                      setError('Por favor, ingresa tu nombre y correo para la factura antes de pagar.');
+                      return actions.reject();
+                    }
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(facturaData.email)) {
+                      setError('Por favor, ingresa un correo electrónico válido.');
+                      return actions.reject();
+                    }
+                    return actions.resolve();
+                  }}
                   createOrder={handleCrearOrden}
                   onApprove={handleAprobar}
                   onError={handleError}

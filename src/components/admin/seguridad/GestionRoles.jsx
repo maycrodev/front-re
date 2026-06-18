@@ -260,6 +260,9 @@ const GestionRoles = () => {
   }, [localPermisos, originalPermisos, selectedRol]);
 
   const handleSave = async () => {
+    if (!window.confirm(`¿Estás seguro de que deseas guardar los cambios de permisos para el rol "${selectedRol.nombre}"?`)) {
+      return;
+    }
     setSaving(true);
     setSaveError('');
     try {
