@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { NAV_LINKS, tieneAcceso } from '../../utils/navConfig';
-import { ROLES, ADMIN_ROLES, getRolPath } from '../../utils/roleUtils';
+import { ROLES, ADMIN_ROLES, getRolPath, getNombreCompleto } from '../../utils/roleUtils';
 import CambiarPasswordPanel from '../auth/CambiarPasswordPanel';
 import './headerPrincipal.css';
 
@@ -66,7 +66,7 @@ const UserHeaderDynamic = () => {
     setShowUserMenu(false);
   };
 
-  const nombreAdmin = usuario?.nombre || 'Administrador';
+  const nombreAdmin = getNombreCompleto(usuario) || usuario?.nombre || 'Administrador';
   // ¿El usuario es estudiante/docente en modo admin (con permisos extra)?
   const esRolPrincipal = rol === ROLES.ESTUDIANTE || rol === ROLES.DOCENTE;
   const labelRolPrincipal = rol === ROLES.DOCENTE ? 'Docente' : 'Estudiante';
@@ -144,7 +144,7 @@ const UserHeaderDynamic = () => {
                 ← Modo {labelRolPrincipal}
               </button>
             )}
-            <div className="secure-badge" title={`${permisos.length} permisos activos`}>
+            <div className="secure-badge">
               <div className="lock-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -153,7 +153,6 @@ const UserHeaderDynamic = () => {
               </div>
               <div className="badge-text">
                 <span className="badge-label">{ROL_LABELS[rol] || rol || 'Admin'}</span>
-                <span className="badge-status">{permisos.length} permisos</span>
               </div>
             </div>
 
@@ -193,24 +192,6 @@ const UserHeaderDynamic = () => {
                     </div>
                   </div>
 
-                  {permisos.length > 0 && (
-                    <div style={{ padding: '0.6rem 1rem', borderBottom: '1px solid #f0f2f5', marginBottom: '0.25rem' }}>
-                      <div style={{ fontSize: '0.72rem', color: '#9ca3af', fontWeight: 600, marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                        Permisos activos
-                      </div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
-                        {permisos.map((p) => (
-                          <span key={p} style={{
-                            background: '#dcfce7', color: '#166534',
-                            padding: '0.1rem 0.45rem', borderRadius: 20,
-                            fontSize: '0.68rem', fontWeight: 600,
-                          }}>
-                            {p}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
                   <DropdownBtn onClick={() => handleNavigate('/admin')}>
                     Panel de Control

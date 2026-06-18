@@ -2,22 +2,17 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserHeaderDynamic from '../../layout/UserHeaderDynamic';
 import Footer from '../../layout/footerPrincipal';
-import { useAuth } from '../../../context/AuthContext';
-import { PERMISSIONS } from '../../../utils/roleUtils';
 import MatrizRiesgos from './MatrizRiesgos';
-import './RiesgosDashboard.css'; // Reuse container layout styles
+import './RiesgosDashboard.css';
 
 const MatrizRiesgosPage = () => {
     const navigate = useNavigate();
-    const { usuario } = useAuth();
-    const puedeGestionar = (usuario?.permisos || []).includes(PERMISSIONS.RIESGOS_GESTIONAR);
 
     return (
         <div className="riesgos-page">
             <UserHeaderDynamic />
 
             <main className="riesgos-main">
-                {/* Header */}
                 <div className="riesgos-header">
                     <button
                         className="riesgos-back-button"
@@ -27,14 +22,14 @@ const MatrizRiesgosPage = () => {
                         ←
                     </button>
                     <div style={{ flex: 1 }}>
-                        <h1 className="riesgos-title">📊 Matriz de Análisis de Riesgos</h1>
+                        <h1 className="riesgos-title">Matriz de Análisis de Riesgos</h1>
                         <p className="riesgos-subtitle">
                             Análisis de activos de información, valoración de amenazas y mitigación residual
                         </p>
                     </div>
                 </div>
 
-                <MatrizRiesgos puedeGestionar={puedeGestionar} />
+                <MatrizRiesgos />
             </main>
 
             <Footer />

@@ -167,7 +167,7 @@ function AppContent() {
         <Route
           path="/admin/cuentas"
           element={
-            <PermisoProtectedRoute permiso={PERMISSIONS.USUARIOS_GESTIONAR}>
+            <PermisoProtectedRoute permiso={[PERMISSIONS.USUARIOS_CREAR, PERMISSIONS.USUARIOS_GESTIONAR]}>
               <CrearCuentas />
             </PermisoProtectedRoute>
           }
@@ -176,7 +176,7 @@ function AppContent() {
         <Route
           path="/admin/gestion-usuarios"
           element={
-            <PermisoProtectedRoute permiso={PERMISSIONS.USUARIOS_GESTIONAR}>
+            <PermisoProtectedRoute permiso={[PERMISSIONS.USUARIOS_VER, PERMISSIONS.USUARIOS_EDITAR, PERMISSIONS.USUARIOS_ELIMINAR, PERMISSIONS.USUARIOS_GESTIONAR]}>
               <AdminGestionUsuarios />
             </PermisoProtectedRoute>
           }
@@ -185,7 +185,7 @@ function AppContent() {
         <Route
           path="/admin/usuarios"
           element={
-            <PermisoProtectedRoute permiso={PERMISSIONS.CURSOS_GESTIONAR}>
+            <PermisoProtectedRoute permiso={[PERMISSIONS.CURSOS_VER, PERMISSIONS.CURSOS_REGISTRAR, PERMISSIONS.CURSOS_MODIFICAR, PERMISSIONS.CURSOS_ELIMINAR, PERMISSIONS.CURSOS_GESTIONAR]}>
               <AdminUsuarios />
             </PermisoProtectedRoute>
           }
@@ -194,7 +194,7 @@ function AppContent() {
         <Route
           path="/admin/cursos"
           element={
-            <PermisoProtectedRoute permiso={PERMISSIONS.CURSOS_GESTIONAR}>
+            <PermisoProtectedRoute permiso={[PERMISSIONS.CURSOS_VER, PERMISSIONS.CURSOS_REGISTRAR, PERMISSIONS.CURSOS_MODIFICAR, PERMISSIONS.CURSOS_ELIMINAR, PERMISSIONS.CURSOS_GESTIONAR]}>
               <AdministrarCursos />
             </PermisoProtectedRoute>
           }
@@ -203,7 +203,7 @@ function AppContent() {
         <Route
           path="/admin/asignar-docente/:cursoId"
           element={
-            <PermisoProtectedRoute permiso={PERMISSIONS.CURSOS_GESTIONAR}>
+            <PermisoProtectedRoute permiso={[PERMISSIONS.CURSOS_MODIFICAR, PERMISSIONS.CURSOS_GESTIONAR]}>
               <AdminAsignarCursosDocente />
             </PermisoProtectedRoute>
           }
@@ -221,7 +221,7 @@ function AppContent() {
         <Route
           path="/admin/inscripciones"
           element={
-            <PermisoProtectedRoute permiso={PERMISSIONS.INSCRIPCIONES_GESTIONAR}>
+            <PermisoProtectedRoute permiso={[PERMISSIONS.INSCRIPCIONES_VER, PERMISSIONS.INSCRIPCIONES_GESTIONAR]}>
               <GestionInscripciones />
             </PermisoProtectedRoute>
           }
@@ -266,7 +266,7 @@ function AppContent() {
         <Route
           path="/admin/seguridad/roles"
           element={
-            <PermisoProtectedRoute permiso={PERMISSIONS.ROLES_GESTIONAR}>
+            <PermisoProtectedRoute permiso={[PERMISSIONS.ROLES_GESTIONAR, PERMISSIONS.ROLES_VER, PERMISSIONS.ROLES_CREAR, PERMISSIONS.ROLES_MODIFICAR, PERMISSIONS.ROLES_ELIMINAR]}>
               <GestionRoles />
             </PermisoProtectedRoute>
           }
@@ -284,7 +284,7 @@ function AppContent() {
         <Route
           path="/admin/matriz-riesgos"
           element={
-            <PermisoProtectedRoute permiso={PERMISSIONS.RIESGOS_VER}>
+            <PermisoProtectedRoute permiso={[PERMISSIONS.RIESGOS_VER, PERMISSIONS.RIESGOS_GESTIONAR, PERMISSIONS.MATRIZ_VER, PERMISSIONS.MATRIZ_AGREGAR, PERMISSIONS.MATRIZ_EDITAR, PERMISSIONS.MATRIZ_ELIMINAR]}>
               <MatrizRiesgosPage />
             </PermisoProtectedRoute>
           }

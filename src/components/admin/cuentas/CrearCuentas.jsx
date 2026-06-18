@@ -42,6 +42,14 @@ const CrearCuentas = () => {
       .catch(() => {});
   }, []);
 
+  // Auto-limpia el aviso de éxito para no dejar la pantalla con el mensaje
+  // de la cuenta anterior una vez concluido el registro.
+  useEffect(() => {
+    if (!exito) return;
+    const t = setTimeout(() => setExito(''), 5000);
+    return () => clearTimeout(t);
+  }, [exito]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });

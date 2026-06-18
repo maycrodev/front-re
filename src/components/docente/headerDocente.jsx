@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { getNombreCompleto, ROLES } from '../../utils/roleUtils';
 import CambiarPasswordPanel from '../auth/CambiarPasswordPanel';
 import '../layout/headerPrincipal.css';
 
@@ -89,8 +90,8 @@ const HeaderDocente = () => {
             </li>
           ))}
 
-          {/* Modo admin — móvil */}
-          {usuario?.permisos?.length > 0 && (
+                  {/* Modo admin — móvil */}
+          {usuario && usuario.rol !== ROLES.ESTUDIANTE && usuario.rol !== ROLES.DOCENTE && (
             <li className="mobile-only">
               <button
                 className="btn-login"
@@ -114,7 +115,7 @@ const HeaderDocente = () => {
         <div className="navbar-actions">
 
           {/* Toggle modo admin — desktop */}
-          {usuario?.permisos?.length > 0 && (
+          {usuario && usuario.rol !== ROLES.ESTUDIANTE && usuario.rol !== ROLES.DOCENTE && (
             <button
               className="desktop-only"
               onClick={() => { toggleModoAdmin(); handleNavigate('/admin'); }}
@@ -174,9 +175,12 @@ const HeaderDocente = () => {
                 {/* Info del usuario */}
                 <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #f0f2f5', marginBottom: '0.25rem' }}>
                   <div style={{ fontWeight: 700, color: '#003366', fontSize: '0.95rem' }}>
-                    {usuario?.nombre || 'Docente'}
+                    {getNombreCompleto(usuario) || usuario?.nombre || 'Docente'}
                   </div>
                   <div style={{ fontSize: '0.78rem', color: '#aaa' }}>{usuario?.email || ''}</div>
+                  {usuario?.id != null && (
+                    <div style={{ fontSize: '0.72rem', color: '#9ca3af', marginTop: '0.15rem' }}>ID #{usuario.id}</div>
+                  )}
                   <div style={{
                     marginTop: '0.4rem', display: 'inline-block',
                     background: 'rgba(140,198,63,0.12)', color: '#5a8a1a',
@@ -201,7 +205,7 @@ const HeaderDocente = () => {
                   🏠 Mi Panel Docente
                 </button>
 
-                {usuario?.permisos?.length > 0 && (
+                {usuario && usuario.rol !== ROLES.ESTUDIANTE && usuario.rol !== ROLES.DOCENTE && (
                   <button
                     onClick={() => { toggleModoAdmin(); handleNavigate('/admin'); }}
                     style={{

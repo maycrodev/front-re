@@ -5,6 +5,8 @@ import UserHeaderDynamic from '../layout/UserHeaderDynamic';
 import Footer from '../layout/footerPrincipal';
 import { validateForm } from '../../utils/formValidators';
 import { getToken } from '../../utils/tokenStore';
+import { useAuth } from '../../context/AuthContext';
+import { PERMISSIONS } from '../../utils/roleUtils';
 import './administrarCursos.css';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -18,6 +20,13 @@ const FORM_VACIO = { nombre: '', descripcion: '', costo: '', cupo_maximo: '', mi
 
 const AdministrarCursos = () => {
   const navigate = useNavigate();
+  const { usuario } = useAuth();
+  const misPermisos  = usuario?.permisos || [];
+  const esGestor     = misPermisos.includes(PERMISSIONS.CURSOS_GESTIONAR);
+  const canRegistrar = esGestor || misPermisos.includes(PERMISSIONS.CURSOS_REGISTRAR);
+  const canModificar = esGestor || misPermisos.includes(PERMISSIONS.CURSOS_MODIFICAR);
+  const canEliminar  = esGestor || misPermisos.includes(PERMISSIONS.CURSOS_ELIMINAR);
+  const tieneAcciones = canRegistrar || canModificar || canEliminar;
 
   const [cursos, setCursos] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -48,6 +57,14 @@ const AdministrarCursos = () => {
   }, []);
 
   useEffect(() => { cargar(); }, [cargar]);
+
+  // Limpia el mensaje de éxito tras unos segundos para que la pantalla no
+  // quede con el aviso de la operación anterior una vez concluida.
+  useEffect(() => {
+    if (!exito) return;
+    const t = setTimeout(() => setExito(''), 4000);
+    return () => clearTimeout(t);
+  }, [exito]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -157,7 +174,7 @@ const AdministrarCursos = () => {
           </div>
           <div className="header-actions">
             <input className="ac-search" type="text" placeholder="Buscar curso..." value={busqueda} onChange={e => setBusqueda(e.target.value)} />
-            <button className="btn-add-curso" onClick={abrirCrear}>+ Nuevo Curso</button>
+            {canRegistrar && <button className="btn-add-curso" onClick={abrirCrear}>+ Nuevo Curso</button>}
           </div>
         </div>
 
@@ -173,12 +190,12 @@ const AdministrarCursos = () => {
                 <th>Cupo</th>
                 <th>Docente</th>
                 <th>Prerrequisitos</th>
-                <th>Acciones</th>
+                {tieneAcciones && <th>Acciones</th>}
               </tr>
             </thead>
             <tbody>
               {cargando ? (
-                <tr><td colSpan="6" style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>Cargando cursos...</td></tr>
+                <tr><td colSpan={tieneAcciones ? 6 : 5} style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>Cargando cursos...</td></tr>
               ) : filtrados.length === 0 ? (
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>No se encontraron cursos.</td></tr>
               ) : filtrados.map(curso => {
@@ -205,13 +222,15 @@ const AdministrarCursos = () => {
                         : <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>—</span>
                       }
                     </td>
-                    <td>
-                      <div className="table-actions-cell">
-                        <button className="btn-edit" onClick={() => abrirEditar(curso)}>Editar</button>
-                        <button className="btn-assign-teacher" onClick={() => navigate(`/admin/asignar-docente/${curso.id}`)}>Docente</button>
-                        <button className="btn-delete-curso" onClick={() => { setError(''); setExito(''); setModalEliminar(curso); }}>Eliminar</button>
-                      </div>
-                    </td>
+                    {tieneAcciones && (
+                      <td>
+                        <div className="table-actions-cell">
+                          {canModificar && <button className="btn-edit" onClick={() => abrirEditar(curso)}>Editar</button>}
+                          {canModificar && <button className="btn-assign-teacher" onClick={() => navigate(`/admin/asignar-docente/${curso.id}`)}>Docente</button>}
+                          {canEliminar  && <button className="btn-delete-curso" onClick={() => { setError(''); setExito(''); setModalEliminar(curso); }}>Eliminar</button>}
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 );
               })}

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getMatrizRiesgos, crearItemMatriz, actualizarItemMatriz, eliminarItemMatriz } from '../../../services/riesgosApi';
 import { getUsuarios } from '../../../services/rbacApi';
+import { useAuth } from '../../../context/AuthContext';
+import { PERMISSIONS } from '../../../utils/roleUtils';
 import * as XLSX from 'xlsx';
 import './MatrizRiesgos.css';
 
@@ -40,7 +42,13 @@ const defaultThreat = () => ({
     responsable_nombre: '',
 });
 
-const MatrizRiesgos = ({ puedeGestionar }) => {
+const MatrizRiesgos = () => {
+    const { usuario } = useAuth();
+    const misPermisos   = usuario?.permisos || [];
+    const puedeAgregar  = misPermisos.includes(PERMISSIONS.MATRIZ_AGREGAR);
+    const puedeEditar   = misPermisos.includes(PERMISSIONS.MATRIZ_EDITAR);
+    const puedeEliminar = misPermisos.includes(PERMISSIONS.MATRIZ_ELIMINAR);
+
     const [matriz, setMatriz] = useState([]);
     const [cargando, setCargando] = useState(false);
     const [error, setError] = useState('');
@@ -65,7 +73,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                 getUsuarios().catch(() => []),
             ]);
             setMatriz(data.datos || []);
-            setUsuariosAdmins((users || []).filter(u => u.rol_name === 'ADMIN_SEGURIDAD' || u.rol_nombre === 'ADMIN_SEGURIDAD'));
+            setUsuariosAdmins((users || []).filter(u => u.activo !== false && (u.rol_nombre === 'Oficial de Seguridad' || u.rol_id === 8)));
         } catch (err) {
             setError(err.message || 'Error al cargar la matriz de riesgos');
         } finally {
@@ -238,7 +246,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
             ["   Abreviaciones válidas: Tipo (P=Preventivo, D=Detectivo, C=Correctivo); Nivel (A=Alto, S=Suficiente, M=Moderado); Frecuencia (PT=Por Transacción, D=Diario, S=Semanal, M=Mensual, A=Anual)"],
             ["5. Los campos P (Probabilidad) e I (Impacto) deben ser números enteros entre 1 y 5."],
             [""],
-            ["LISTA DE ADMINISTRADORES DE SEGURIDAD REGISTRADOS EN EL SISTEMA:"],
+            ["LISTA DE OFICIALES DE SEGURIDAD REGISTRADOS EN EL SISTEMA:"],
             ["ID", "Nombre Completo", "Correo Electrónico (Usar en la hoja Matriz)"]
         ];
 
@@ -262,7 +270,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                 "I Residual (1-5)": 5,
                 "Pasos Plan de Accion (Separados por punto y coma ';')": "Auditar código de endpoints; Configurar reglas de WAF; Implementar firmas",
                 "Fecha Limite (AAAA-MM-DD)": "2026-06-15",
-                "Responsable Email (Debe ser un Administrador de Seguridad registrado)": usuariosAdmins[0]?.correo || usuariosAdmins[0]?.email || "admin_seguridad@college.edu"
+                "Responsable Email (Debe ser un Responsable de Seguridad registrado)": usuariosAdmins[0]?.correo || usuariosAdmins[0]?.email || "admin_seguridad@college.edu"
             },
             {
                 "Activo de Informacion": "",
@@ -276,7 +284,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                 "I Residual (1-5)": "",
                 "Pasos Plan de Accion (Separados por punto y coma ';')": "",
                 "Fecha Limite (AAAA-MM-DD)": "",
-                "Responsable Email (Debe ser un Administrador de Seguridad registrado)": ""
+                "Responsable Email (Debe ser un Responsable de Seguridad registrado)": ""
             }
         ];
 
@@ -332,7 +340,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                         agrupados[activo] = [];
                     }
 
-                    const emailResp = row["Responsable Email (Debe ser un Administrador de Seguridad registrado)"] || '';
+                    const emailResp = row["Responsable Email (Debe ser un Responsable de Seguridad registrado)"] || '';
                     const user = usuariosAdmins.find(u => String(u.correo || u.email || '').trim().toLowerCase() === String(emailResp).trim().toLowerCase());
                     
                     const pInherente = Number(row["P Inherente (1-5)"]) || 3;
@@ -438,7 +446,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                 return;
             }
             if (!t.responsable_id) {
-                setError(`Debe seleccionar un responsable (Administrador de Seguridad) para la mitigación de la Amenaza #${i + 1}.`);
+                setError(`Debe seleccionar un responsable (Responsable de Seguridad) para la mitigación de la Amenaza #${i + 1}.`);
                 return;
             }
         }
@@ -560,24 +568,24 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
     return (
         <div className="matriz-container">
             <div className="matriz-controls-row">
-                <h2 className="matriz-subtitle">📋 Matriz de Análisis de Riesgos de Seguridad de la Información</h2>
+                <h2 className="matriz-subtitle">Matriz de Análisis de Riesgos de Seguridad de la Información</h2>
                 <div className="matriz-header-buttons">
                     <button className="btn-secundario add-matrix-btn" onClick={() => setModalExplicativoAbierto(true)}>
-                        ❓ Criterios
+                        <i className="fa-solid fa-circle-question"></i> Criterios
                     </button>
-                    {puedeGestionar && (
+                    {puedeAgregar && (
                         <>
                             <button className="btn-secundario add-matrix-btn" onClick={descargarExcelModelo}>
-                                📥 Descargar Plantilla
+                                <i className="fa-solid fa-download"></i> Descargar Plantilla
                             </button>
                             <label className="btn-secundario add-matrix-btn upload-excel-btn">
-                                📤 Importar Excel
-                                <input 
-                                    type="file" 
-                                    accept=".xlsx, .xls" 
+                                <i className="fa-solid fa-upload"></i> Importar Excel
+                                <input
+                                    type="file"
+                                    accept=".xlsx, .xls"
                                     ref={fileInputRef}
                                     onChange={handleImportarExcel}
-                                    style={{ display: 'none' }} 
+                                    style={{ display: 'none' }}
                                 />
                             </label>
                             <button className="btn-primario add-matrix-btn" onClick={abrirCrear}>
@@ -605,7 +613,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                                 <th colSpan="4" className="group-mitigacion">MITIGACIÓN Y CONTROLES</th>
                                 <th colSpan="4" className="group-residual">RIESGO RESIDUAL</th>
                                 <th colSpan="3" className="group-eficiencia">PLAN DE ACCIÓN Y SEGUIMIENTO</th>
-                                {puedeGestionar && <th className="group-acciones">ACCIONES</th>}
+                                {(puedeEditar || puedeEliminar) && <th className="group-acciones">ACCIONES</th>}
                             </tr>
                             <tr className="matriz-header-fields">
                                 <th style={{ width: '40px' }}>No.</th>
@@ -628,7 +636,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                                 <th style={{ minWidth: '220px' }}>Pasos Plan de Acción</th>
                                 <th style={{ minWidth: '90px' }}>Fecha Límite</th>
                                 <th style={{ minWidth: '130px' }}>Responsable</th>
-                                {puedeGestionar && <th style={{ width: '100px' }}>Acción Activo</th>}
+                                {(puedeEditar || puedeEliminar) && <th style={{ width: '100px' }}>Acción Activo</th>}
                             </tr>
                         </thead>
                         <tbody>
@@ -699,11 +707,15 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                                              </>
                                          )}
 
-                                         {row.isFirstControlOfAsset && puedeGestionar && (
+                                         {row.isFirstControlOfAsset && (puedeEditar || puedeEliminar) && (
                                              <td rowSpan={row.assetRowSpan} className="text-center">
                                                  <div className="matrix-actions-cell">
-                                                     <button className="matrix-btn-edit" onClick={() => abrirEditar(row.fullItem)} title="Editar Activo Completo">✏️</button>
-                                                     <button className="matrix-btn-delete" onClick={() => borrar(row.assetId)} title="Eliminar Activo">🗑️</button>
+                                                     {puedeEditar && (
+                                                         <button className="matrix-btn-edit" onClick={() => abrirEditar(row.fullItem)} title="Editar Activo Completo"><i className="fa-solid fa-pen"></i></button>
+                                                     )}
+                                                     {puedeEliminar && (
+                                                         <button className="matrix-btn-delete" onClick={() => borrar(row.assetId)} title="Eliminar Activo"><i className="fa-solid fa-trash"></i></button>
+                                                     )}
                                                  </div>
                                              </td>
                                          )}
@@ -712,7 +724,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                              })}
                              {matriz.length === 0 && (
                                  <tr>
-                                     <td colSpan={puedeGestionar ? 21 : 20} className="text-center py-8 text-slate-400">
+                                     <td colSpan={(puedeEditar || puedeEliminar) ? 21 : 20} className="text-center py-8 text-slate-400">
                                          No hay análisis de riesgos registrados en la matriz.
                                      </td>
                                  </tr>
@@ -726,7 +738,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                 <div className="riesgos-modal-overlay" onClick={() => setModalExplicativoAbierto(false)}>
                     <div className="riesgos-modal explicativo-modal-width anim-scale-up" onClick={(e) => e.stopPropagation()}>
                         <div className="explicativo-modal-header">
-                            <h2>📊 Matriz de Criterios de Evaluación de Riesgos</h2>
+                            <h2>Matriz de Criterios de Evaluación de Riesgos</h2>
                             <button className="close-modal" onClick={() => setModalExplicativoAbierto(false)}>&times;</button>
                         </div>
                         
@@ -800,13 +812,16 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
             {modalAbierto && (
                 <div className="riesgos-modal-overlay" onClick={() => setModalAbierto(false)}>
                     <div className="riesgos-modal matriz-modal-width anim-scale-up" onClick={(e) => e.stopPropagation()}>
-                        <h2>{editandoId ? '✏️ Editar Activo e Identificación de Riesgos' : '➕ Nuevo Registro de Riesgo por Activo'}</h2>
+                        <div className="modal-header">
+                            <h2>{editandoId ? 'Editar Activo e Identificación de Riesgos' : 'Nuevo Registro de Riesgo por Activo'}</h2>
+                            <button type="button" className="close-modal" onClick={() => setModalAbierto(false)}>&times;</button>
+                        </div>
                         <p className="modal-desc">
                             Ingresa el activo afectado e identifica sus amenazas de seguridad correspondientes de forma granular. Todos los campos obligatorios (*) cuentan con validación visual.
                         </p>
                         
                         <form onSubmit={guardar} className="matriz-modal-form">
-                            <div className="form-section-title">📦 1. Activo de Información Evaluado</div>
+                            <div className="form-section-title">1. Activo de Información Evaluado</div>
                             <div className="form-row">
                                 <label className="form-col-12 label-ux-focus">
                                     Nombre o Descripción del Activo de Información *
@@ -824,7 +839,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                             <div className="form-section-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem' }}>
                                 <span>🛡️ 2. Amenazas e Identificación de Controles Granulares</span>
                                 <button type="button" className="btn-secundario btn-mini" onClick={handleAddThreat} style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem', borderRadius: '8px' }}>
-                                    + Añadir Otra Amenaza a este Activo
+                                    + Añadir Otra Amenaza
                                 </button>
                             </div>
 
@@ -841,7 +856,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                                             </h4>
                                             {form.amenazas.length > 1 && (
                                                 <button type="button" className="threat-remove-btn" onClick={() => handleRemoveThreat(tIdx)}>
-                                                    Quitar Amenaza 🗑️
+                                                    <i className="fa-solid fa-trash"></i> Quitar Amenaza
                                                 </button>
                                             )}
                                         </div>
@@ -871,9 +886,10 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                                             </label>
                                         </div>
 
+                                        {/* Paso 1: Riesgo Inherente (antes de aplicar controles) */}
                                         <div className="form-row">
                                             <div className="form-col-6 threat-box-group border-highlight-orange">
-                                                <h5>💥 Evaluación Riesgo Inherente</h5>
+                                                <h5>💥 1. Evaluación Riesgo Inherente</h5>
                                                 <div className="form-row">
                                                     <label className="form-col-6">
                                                         Probabilidad *
@@ -889,38 +905,15 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                                                     </label>
                                                 </div>
                                                 <div className="val-badge-preview mt-2 font-bold" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}>
-                                                    Riesgo: {inherenteVal} - 
+                                                    Riesgo: {inherenteVal} -
                                                     <span className="matrix-badge" style={{ backgroundColor: `${COLOR_NIVEL[CALCULAR_NIVEL(inherenteVal)]}22`, color: COLOR_NIVEL[CALCULAR_NIVEL(inherenteVal)], border: `1px solid ${COLOR_NIVEL[CALCULAR_NIVEL(inherenteVal)]}55` }}>
                                                         {CALCULAR_NIVEL(inherenteVal)}
                                                     </span>
                                                 </div>
                                             </div>
-
-                                            <div className="form-col-6 threat-box-group border-highlight-green">
-                                                <h5>🛡️ Evaluación Riesgo Residual (Con Controles)</h5>
-                                                <div className="form-row">
-                                                    <label className="form-col-6">
-                                                        P Residual *
-                                                        <select className="select-ux-premium" value={t.probabilidad_residual} onChange={(e) => handleThreatChange(tIdx, 'probabilidad_residual', Number(e.target.value))}>
-                                                            {[1, 2, 3, 4, 5].map(v => <option key={v} value={v}>{v}</option>)}
-                                                        </select>
-                                                    </label>
-                                                    <label className="form-col-6">
-                                                        I Residual *
-                                                        <select className="select-ux-premium" value={t.impacto_residual} onChange={(e) => handleThreatChange(tIdx, 'impacto_residual', Number(e.target.value))}>
-                                                            {[1, 2, 3, 4, 5].map(v => <option key={v} value={v}>{v}</option>)}
-                                                        </select>
-                                                    </label>
-                                                </div>
-                                                <div className="val-badge-preview mt-2 font-bold" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}>
-                                                    Residual: {residualVal} - 
-                                                    <span className="matrix-badge" style={{ backgroundColor: `${COLOR_NIVEL[CALCULAR_NIVEL(residualVal)]}22`, color: COLOR_NIVEL[CALCULAR_NIVEL(residualVal)], border: `1px solid ${COLOR_NIVEL[CALCULAR_NIVEL(residualVal)]}55` }}>
-                                                        {CALCULAR_NIVEL(residualVal)}
-                                                    </span>
-                                                </div>
-                                            </div>
                                         </div>
 
+                                        {/* Paso 2: Tratamiento y Controles (la metodología define los controles ANTES del residual) */}
                                         <div className="form-row">
                                              <label className="form-col-4">
                                                  Tratamiento
@@ -930,7 +923,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                                              </label>
                                              <div className="form-col-8 threat-box-group">
                                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                                                     <h5 style={{ margin: 0 }}>🛡️ Controles de Mitigación Granulares *</h5>
+                                                     <h5 style={{ margin: 0 }}>🛡️ 2. Controles de Mitigación Granulares *</h5>
                                                      <button type="button" className="btn-secundario btn-mini" onClick={() => handleAddControl(tIdx)} style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}>
                                                          + Añadir Control
                                                      </button>
@@ -986,9 +979,36 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                                              </div>
                                          </div>
 
+                                        {/* Paso 3: Riesgo Residual (se evalúa DESPUÉS de definir los controles) */}
+                                        <div className="form-row">
+                                            <div className="form-col-6 threat-box-group border-highlight-green">
+                                                <h5>🛡️ 3. Evaluación Riesgo Residual (después de aplicar los controles)</h5>
+                                                <div className="form-row">
+                                                    <label className="form-col-6">
+                                                        P Residual *
+                                                        <select className="select-ux-premium" value={t.probabilidad_residual} onChange={(e) => handleThreatChange(tIdx, 'probabilidad_residual', Number(e.target.value))}>
+                                                            {[1, 2, 3, 4, 5].map(v => <option key={v} value={v}>{v}</option>)}
+                                                        </select>
+                                                    </label>
+                                                    <label className="form-col-6">
+                                                        I Residual *
+                                                        <select className="select-ux-premium" value={t.impacto_residual} onChange={(e) => handleThreatChange(tIdx, 'impacto_residual', Number(e.target.value))}>
+                                                            {[1, 2, 3, 4, 5].map(v => <option key={v} value={v}>{v}</option>)}
+                                                        </select>
+                                                    </label>
+                                                </div>
+                                                <div className="val-badge-preview mt-2 font-bold" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}>
+                                                    Residual: {residualVal} -
+                                                    <span className="matrix-badge" style={{ backgroundColor: `${COLOR_NIVEL[CALCULAR_NIVEL(residualVal)]}22`, color: COLOR_NIVEL[CALCULAR_NIVEL(residualVal)], border: `1px solid ${COLOR_NIVEL[CALCULAR_NIVEL(residualVal)]}55` }}>
+                                                        {CALCULAR_NIVEL(residualVal)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div className="threat-box-group mt-3">
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                                                <h5 style={{ margin: 0 }}>📋 Plan de Acción (Secuencia de Pasos)</h5>
+                                                <h5 style={{ margin: 0 }}>📋 4. Plan de Acción (Secuencia de Pasos)</h5>
                                                 <button type="button" className="btn-secundario btn-mini" onClick={() => handleAddStep(tIdx)} style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}>
                                                     + Añadir Paso
                                                 </button>
@@ -1023,7 +1043,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                                                 />
                                             </label>
                                             <label className="form-col-8">
-                                                Responsable (Admin. Seguridad) *
+                                                Responsable (Oficial de Seguridad) *
                                                 <select
                                                     required
                                                     className="select-ux-premium border-pulse-glow"
@@ -1066,7 +1086,7 @@ const MatrizRiesgos = ({ puedeGestionar }) => {
                                     Cancelar
                                 </button>
                                 <button type="submit" className="btn-primario">
-                                    {editandoId ? 'Guardar Cambios' : 'Registrar Todo el Activo'}
+                                    {editandoId ? 'Guardar Cambios' : 'Registrar Riesgo'}
                                 </button>
                             </div>
                         </form>

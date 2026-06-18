@@ -13,6 +13,8 @@ const initUsuario = () => {
   return {
     id: payload.id,
     nombre: payload.nombre,
+    apellido_paterno: payload.apellido_paterno || '',
+    apellido_materno: payload.apellido_materno || '',
     email: payload.email,
     rol: payload.rol,
     rol_id: payload.rol_id,

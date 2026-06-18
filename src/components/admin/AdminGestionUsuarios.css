@@ -1,4 +1,12 @@
 /* AdminGestionUsuarios.css */
+
+/* ── Page container (full-width, no max-width restriction) ───────────────── */
+.gu-container {
+  padding: 2rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* ── Count badge ─────────────────────────────────────────────────────────── */
 .gu-badge-count {
   background: #eef2ff;
   color: #4f46e5;
@@ -6,8 +14,10 @@
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 
+/* ── Filters row ─────────────────────────────────────────────────────────── */
 .gu-filtros {
   display: flex;
   gap: 1rem;
@@ -49,67 +59,81 @@
   border-color: #4f46e5;
 }
 
-.gu-badge-active,
-.gu-badge-blocked,
-.gu-badge-verified,
-.gu-badge-unverified {
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
+/* ── Table container — horizontal scroll only when needed ────────────────── */
+.gu-table-wrapper {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.gu-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.gu-table th {
+  background: #f9fafb;
+  padding: 0.9rem 1.25rem;
+  font-size: 0.72rem;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #4b5563;
+  border-bottom: 2px solid #f3f4f6;
   white-space: nowrap;
 }
 
-.gu-badge-active    { background: #dcfce7; color: #166534; }
-.gu-badge-blocked   { background: #fee2e2; color: #991b1b; }
-.gu-badge-inactive  { background: #e2e8f0; color: #475569; }
-.gu-badge-verified  { background: #d1fae5; color: #065f46; }
-.gu-badge-unverified{ background: #fef3c7; color: #92400e; }
+.gu-table td {
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid #f3f4f6;
+  color: #374151;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
 
-.gu-actions {
+.gu-table tr:last-child td {
+  border-bottom: none;
+}
+
+.gu-table tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Empty / loading state */
+.gu-table-empty {
+  text-align: center;
+  padding: 3rem !important;
+  color: #94a3b8;
+}
+
+/* ── User cell ───────────────────────────────────────────────────────────── */
+.docente-avatar-cell {
   display: flex;
-  gap: 0.5rem;
   align-items: center;
-  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
-.gu-btn {
-  border: none;
-  border-radius: 8px;
-  padding: 0.35rem 0.7rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.15s;
-  white-space: nowrap;
-}
-
-.gu-btn:hover {
-  opacity: 0.85;
-  transform: translateY(-1px);
-}
-
-.gu-btn-unlock {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.gu-btn-role {
+.mini-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   background: #eef2ff;
-  color: #3730a3;
-}
-
-.gu-btn-delete {
-  background: #fee2e2;
-  color: #991b1b;
-  font-size: 1rem;
-  padding: 0.35rem 0.6rem;
+  color: #4f46e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
 }
 
 .mini-avatar-button {
   border: none;
   cursor: pointer;
-  flex-shrink: 0;
 }
 
 .gu-user-name-link {
@@ -118,6 +142,7 @@
   padding: 0;
   font: inherit;
   font-weight: 700;
+  font-size: 0.9rem;
   color: #0f172a;
   cursor: pointer;
   text-align: left;
@@ -128,6 +153,102 @@
   text-decoration: underline;
 }
 
+.gu-self-label {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+
+/* ── Email cell ──────────────────────────────────────────────────────────── */
+.gu-email-cell {
+  color: #475569;
+  font-size: 0.875rem;
+}
+
+/* ── Status / verification badges ───────────────────────────────────────── */
+.gu-badge-active,
+.gu-badge-blocked,
+.gu-badge-inactive,
+.gu-badge-verified,
+.gu-badge-unverified {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* lucide icons inside badges are inline-flex already */
+
+.gu-badge-active      { background: #dcfce7; color: #166534; }
+.gu-badge-blocked     { background: #fee2e2; color: #991b1b; }
+.gu-badge-inactive    { background: #e2e8f0; color: #475569; }
+.gu-badge-verified    { background: #d1fae5; color: #065f46; }
+.gu-badge-unverified  { background: #fef3c7; color: #92400e; }
+
+/* ── Action icon buttons ─────────────────────────────────────────────────── */
+.gu-actions {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: nowrap;  /* keep buttons on one line */
+}
+
+.gu-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s, opacity 0.15s;
+  flex-shrink: 0;
+}
+
+
+.gu-icon-btn:hover {
+  transform: translateY(-1px);
+}
+
+.gu-icon-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.gu-icon-btn--view {
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.gu-icon-btn--view:hover {
+  background: #e0e7ff;
+}
+
+.gu-icon-btn--unlock {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.gu-icon-btn--unlock:hover {
+  background: #fde68a;
+}
+
+.gu-icon-btn--delete {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.gu-icon-btn--delete:hover {
+  background: #fecaca;
+}
+
+/* ── Modal ───────────────────────────────────────────────────────────────── */
 .user-detail-modal {
   max-width: 720px;
 }
@@ -187,7 +308,7 @@
 
 .user-detail-item span {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: #64748b;
   margin-bottom: 0.35rem;
   text-transform: uppercase;
@@ -201,6 +322,25 @@
 
 .user-detail-actions {
   margin-top: 1.25rem;
+}
+
+/* ── Alert boxes ──────────────────────────────────────────────────────────── */
+.admin-error-box {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+}
+
+.admin-success-box {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 640px) {

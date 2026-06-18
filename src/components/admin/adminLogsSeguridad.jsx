@@ -129,7 +129,7 @@ const AdminLogsSeguridad = () => {
     return (
         <div className="admin-page">
             <UserHeaderDynamic />
-            <main className="admin-main">
+            <main className="admin-main logs-main-wide">
                 <div className="admin-logs-container security-theme">
 
                     {/* Cabecera */}
@@ -237,11 +237,9 @@ const AdminLogsSeguridad = () => {
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        {item.usuario ? (
-                                                            <div className="logs-usuario-name">{item.usuario}</div>
-                                                        ) : null}
-                                                        <div className="logs-usuario-email" style={{ fontStyle: item.email ? 'normal' : 'italic', color: item.email ? undefined : '#94a3b8' }}>
-                                                            {item.email || '—'}
+                                                        <div className="logs-usuario-name">{item.usuario || '—'}</div>
+                                                        <div className="logs-usuario-email" style={{ color: item.email ? undefined : '#94a3b8' }}>
+                                                            User ID: {item.email || '—'}
                                                         </div>
                                                     </td>
                                                     <td>

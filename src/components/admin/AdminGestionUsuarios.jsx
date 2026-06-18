@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserHeaderDynamic from '../layout/UserHeaderDynamic';
 import Footer from '../layout/footerPrincipal';
 import { getUsuarios, getUsuarioDetalle, desbloquearUsuario, deleteUser } from '../../services/rbacApi';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/roleUtils';
-import './adminUsuarios.css';
 import './AdminGestionUsuarios.css';
 
+// ── Role badge styles ─────────────────────────────────────────────────────────
 const ROL_BADGE = {
   [ROLES.ADMINISTRADOR]:   { bg: '#fef3c7', color: '#92400e' },
   [ROLES.ADMIN_CUENTAS]:   { bg: '#e0e7ff', color: '#3730a3' },
@@ -21,18 +21,19 @@ const ROL_BADGE = {
 
 const rolBadgeStyle = (nombre) => {
   const s = ROL_BADGE[nombre] || { bg: '#f1f5f9', color: '#475569' };
-  return { background: s.bg, color: s.color, padding: '0.25rem 0.75rem', borderRadius: 999, fontSize: '0.75rem', fontWeight: 700, whiteSpace: 'nowrap' };
+  return { background: s.bg, color: s.color, padding: '0.25rem 0.65rem', borderRadius: 999, fontSize: '0.72rem', fontWeight: 700, whiteSpace: 'nowrap' };
 };
-
-const estadoBadgeStyle = (activo) => activo
-  ? { background: '#dcfce7', color: '#166534' }
-  : { background: '#fee2e2', color: '#991b1b' };
 
 const isBloqueado = (hasta) => hasta && new Date(hasta) > new Date();
 
 export default function AdminGestionUsuarios() {
   const navigate = useNavigate();
   const { usuario: self } = useAuth();
+
+  const misPermisos   = self?.permisos || [];
+  const esGestor      = misPermisos.includes('usuarios:gestionar');
+  const canEditar     = esGestor || misPermisos.includes('usuarios:editar');
+  const canEliminar   = esGestor || misPermisos.includes('usuarios:eliminar');
 
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +43,6 @@ export default function AdminGestionUsuarios() {
   const [filtroRol, setFiltroRol] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('activos');
 
-  // Modal de confirmación de eliminación
   const [modalEliminar, setModalEliminar] = useState(null);
   const [modalDetalle, setModalDetalle] = useState(null);
   const [submittingDel, setSubmittingDel] = useState(false);
@@ -90,8 +90,7 @@ export default function AdminGestionUsuarios() {
   };
 
   const handleVerDetalle = async (u) => {
-    setError('');
-    setSuccess('');
+    setError(''); setSuccess('');
     setLoadingDetalle(true);
     try {
       const detalle = await getUsuarioDetalle(u.id);
@@ -115,13 +114,9 @@ export default function AdminGestionUsuarios() {
     const inactivo = u.activo === false;
     let coincideEstado = true;
 
-    if (filtroEstado === 'activos') {
-      coincideEstado = !inactivo && !bloqueado;
-    } else if (filtroEstado === 'inactivos') {
-      coincideEstado = inactivo;
-    } else if (filtroEstado === 'bloqueados') {
-      coincideEstado = bloqueado && !inactivo;
-    }
+    if (filtroEstado === 'activos')    coincideEstado = !inactivo && !bloqueado;
+    else if (filtroEstado === 'inactivos') coincideEstado = inactivo;
+    else if (filtroEstado === 'bloqueados') coincideEstado = bloqueado && !inactivo;
 
     return coincideTexto && coincideRol && coincideEstado;
   });
@@ -132,16 +127,14 @@ export default function AdminGestionUsuarios() {
     <div className="admin-page">
       <UserHeaderDynamic />
 
-      <main className="admin-main">
-        <div className="admin-usuarios-container">
+      <main className="admin-main logs-main-wide">
+        <div className="gu-container">
 
           {/* Header */}
           <div className="admin-usuarios-header">
             <div className="header-title-section">
               <button className="btn-back-circle" onClick={() => navigate('/admin')} title="Volver">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
+                <i className="fa-solid fa-chevron-left"></i>
               </button>
               <div>
                 <h1 className="admin-usuarios-title">Gestión de Usuarios</h1>
@@ -151,7 +144,7 @@ export default function AdminGestionUsuarios() {
             <div className="gu-badge-count">{filtrados.length} usuario{filtrados.length !== 1 ? 's' : ''}</div>
           </div>
 
-          {error && <div className="admin-error-box" style={{ marginBottom: '1rem' }}>{error}</div>}
+          {error   && <div className="admin-error-box"   style={{ marginBottom: '1rem' }}>{error}</div>}
           {success && <div className="admin-success-box" style={{ marginBottom: '1rem' }}>{success}</div>}
 
           {/* Filtros */}
@@ -163,19 +156,11 @@ export default function AdminGestionUsuarios() {
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
             />
-            <select
-              className="gu-select"
-              value={filtroRol}
-              onChange={e => setFiltroRol(e.target.value)}
-            >
+            <select className="gu-select" value={filtroRol} onChange={e => setFiltroRol(e.target.value)}>
               <option value="">Todos los roles</option>
               {rolesUnicos.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
-            <select
-              className="gu-select"
-              value={filtroEstado}
-              onChange={e => setFiltroEstado(e.target.value)}
-            >
+            <select className="gu-select" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
               <option value="">Todos los estados</option>
               <option value="activos">Solo activos</option>
               <option value="inactivos">Solo inactivos</option>
@@ -184,13 +169,13 @@ export default function AdminGestionUsuarios() {
           </div>
 
           {/* Tabla */}
-          <div className="usuarios-table-container">
-            <table className="usuarios-table">
+          <div className="gu-table-wrapper">
+            <table className="gu-table">
               <thead>
                 <tr>
                   <th>Usuario</th>
                   <th>Correo</th>
-                  <th>Email Verificado</th>
+                  <th>Email</th>
                   <th>Rol</th>
                   <th>Estado</th>
                   <th>Acciones</th>
@@ -198,15 +183,16 @@ export default function AdminGestionUsuarios() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>Cargando usuarios...</td></tr>
+                  <tr><td colSpan="6" className="gu-table-empty">Cargando usuarios...</td></tr>
                 ) : filtrados.length === 0 ? (
-                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>No se encontraron usuarios.</td></tr>
+                  <tr><td colSpan="6" className="gu-table-empty">No se encontraron usuarios.</td></tr>
                 ) : filtrados.map(u => {
-                      const bloqueado = isBloqueado(u.bloqueado_hasta);
-                      const inactivo = u.activo === false;
-                  const esSelf = self && String(u.id) === String(self.id);
+                  const bloqueado = isBloqueado(u.bloqueado_hasta);
+                  const inactivo  = u.activo === false;
+                  const esSelf    = self && String(u.id) === String(self.id);
                   return (
                     <tr key={u.id}>
+                      {/* Nombre */}
                       <td>
                         <div className="docente-avatar-cell">
                           <button
@@ -228,18 +214,26 @@ export default function AdminGestionUsuarios() {
                             >
                               {u.nombre} {u.apellido_paterno}
                             </button>
-                            {esSelf && <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>(tú)</div>}
+                            {esSelf && <div className="gu-self-label">(tú)</div>}
                           </div>
                         </div>
                       </td>
-                      <td style={{ color: '#475569' }}>{u.email}</td>
+
+                      {/* Correo */}
+                      <td className="gu-email-cell">{u.email}</td>
+
+                      {/* Email verificado */}
                       <td>
                         {u.email_verificado
-                          ? <span className="gu-badge-verified">✓ Verificado</span>
-                          : <span className="gu-badge-unverified">✗ Pendiente</span>
+                          ? <span className="gu-badge-verified"><i className="fa-solid fa-check"></i>Verificado</span>
+                          : <span className="gu-badge-unverified"><i className="fa-solid fa-xmark"></i>Pendiente</span>
                         }
                       </td>
+
+                      {/* Rol */}
                       <td><span style={rolBadgeStyle(u.rol_nombre)}>{u.rol_nombre || '—'}</span></td>
+
+                      {/* Estado */}
                       <td>
                         {inactivo
                           ? <span className="gu-badge-inactive">Inactivo</span>
@@ -248,19 +242,36 @@ export default function AdminGestionUsuarios() {
                             : <span className="gu-badge-active">Activo</span>
                         }
                       </td>
+
+                      {/* Acciones */}
                       <td>
                         <div className="gu-actions">
-                          <button className="gu-btn gu-btn-role" onClick={() => handleVerDetalle(u)} title="Ver detalle">
-                            👁 Detalle
+                          <button
+                            className="gu-icon-btn gu-icon-btn--view"
+                            onClick={() => handleVerDetalle(u)}
+                            title="Ver detalle"
+                            disabled={loadingDetalle}
+                          >
+                            <i className="fa-solid fa-eye"></i>
                           </button>
-                          {bloqueado && !inactivo && (
-                            <button className="gu-btn gu-btn-unlock" onClick={() => handleDesbloquear(u)} title="Desbloquear">
-                              🔓 Desbloquear
+
+                          {bloqueado && !inactivo && canEditar && (
+                            <button
+                              className="gu-icon-btn gu-icon-btn--unlock"
+                              onClick={() => handleDesbloquear(u)}
+                              title="Desbloquear cuenta"
+                            >
+                              <i className="fa-solid fa-lock-open"></i>
                             </button>
                           )}
-                          {!esSelf && !inactivo && (
-                            <button className="gu-btn gu-btn-delete" onClick={() => setModalEliminar(u)} title="Eliminar">
-                              🗑
+
+                          {!esSelf && !inactivo && canEliminar && (
+                            <button
+                              className="gu-icon-btn gu-icon-btn--delete"
+                              onClick={() => setModalEliminar(u)}
+                              title="Eliminar usuario"
+                            >
+                              <i className="fa-solid fa-trash"></i>
                             </button>
                           )}
                         </div>
@@ -277,7 +288,7 @@ export default function AdminGestionUsuarios() {
       {/* Modal Confirmar Eliminación */}
       {modalEliminar && (
         <div className="modal-overlay" onClick={() => setModalEliminar(null)}>
-          <div className="modal-content" style={{ maxWidth: 400 }} onClick={e => e.stopPropagation()}>
+          <div className="modal-content" style={{ maxWidth: 420 }} onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Eliminar Usuario</h2>
               <button className="close-modal" onClick={() => setModalEliminar(null)}>&times;</button>
@@ -304,6 +315,7 @@ export default function AdminGestionUsuarios() {
         </div>
       )}
 
+      {/* Modal Detalle */}
       {modalDetalle && (
         <div className="modal-overlay" onClick={() => setModalDetalle(null)}>
           <div className="modal-content user-detail-modal" onClick={e => e.stopPropagation()}>
@@ -329,9 +341,7 @@ export default function AdminGestionUsuarios() {
                 </div>
                 <div className="user-detail-item">
                   <span>Estado</span>
-                  <strong>
-                    {modalDetalle.activo === false ? 'Inactivo' : 'Activo'}
-                  </strong>
+                  <strong>{modalDetalle.activo === false ? 'Inactivo' : 'Activo'}</strong>
                 </div>
                 <div className="user-detail-item">
                   <span>Email verificado</span>

@@ -2,7 +2,7 @@
 
 .admin-logs-container {
     padding: 2rem;
-    max-width: 1300px;
+    max-width: 98%;
     margin: 0 auto;
     background: radial-gradient(1200px circle at 50% 200px, rgba(14, 165, 233, 0.05), transparent 80%),
                 radial-gradient(800px circle at 80% 400px, rgba(99, 102, 241, 0.03), transparent 60%);
@@ -178,13 +178,17 @@
     background: white;
     border: 1px solid rgba(226, 232, 240, 0.8);
     border-radius: 16px;
-    overflow: hidden;
+    /* Scroll horizontal en vez de recortar: la tabla se ve completa
+       aunque tenga muchas columnas (antes quedaba cortada con overflow:hidden). */
+    overflow-x: auto;
+    overflow-y: visible;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02),
                 0 2px 4px -1px rgba(0, 0, 0, 0.01);
 }
 
 .logs-table {
     width: 100%;
+    min-width: 900px;
     border-collapse: collapse;
     text-align: left;
     font-size: 0.9rem;
@@ -273,6 +277,19 @@
     font-size: 0.75rem;
     color: #64748b;
     margin-top: 0.1rem;
+}
+
+.logs-usuario-id {
+    display: inline-block;
+    margin-top: 0.25rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 0.05rem 0.4rem;
+    font-variant-numeric: tabular-nums;
 }
 
 .logs-json-details {

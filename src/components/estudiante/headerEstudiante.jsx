@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { getNombreCompleto, ROLES } from '../../utils/roleUtils';
 import '../layout/headerPrincipal.css';
 import Login from '../login/login';
 import CambiarPasswordPanel from '../auth/CambiarPasswordPanel';
@@ -85,7 +86,7 @@ const HeaderEstudiante = () => {
                         </li>
 
                         {/* Modo admin — móvil */}
-                        {usuario?.permisos?.length > 0 && (
+                        {usuario && usuario.rol !== ROLES.ESTUDIANTE && usuario.rol !== ROLES.DOCENTE && (
                             <li className="mobile-only">
                                 <button
                                     className="btn-login"
@@ -114,7 +115,7 @@ const HeaderEstudiante = () => {
                     {/* Acciones del lado derecho */}
                     <div className="navbar-actions">
                         {/* Toggle modo admin — desktop */}
-                        {usuario?.permisos?.length > 0 && (
+                        {usuario && usuario.rol !== ROLES.ESTUDIANTE && usuario.rol !== ROLES.DOCENTE && (
                             <button
                                 className="desktop-only"
                                 onClick={() => { toggleModoAdmin(); navigate('/admin'); }}
@@ -170,8 +171,11 @@ const HeaderEstudiante = () => {
                                         animation: 'fadeDown 0.2s ease',
                                     }}>
                                         <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #f0f2f5', marginBottom: '0.25rem' }}>
-                                            <div style={{ fontWeight: 700, color: '#003366', fontSize: '0.95rem' }}>{usuario.nombre}</div>
+                                            <div style={{ fontWeight: 700, color: '#003366', fontSize: '0.95rem' }}>{getNombreCompleto(usuario) || usuario.nombre}</div>
                                             <div style={{ fontSize: '0.78rem', color: '#aaa' }}>{usuario.email}</div>
+                                            {usuario?.id != null && (
+                                                <div style={{ fontSize: '0.72rem', color: '#9ca3af', marginTop: '0.15rem' }}>ID #{usuario.id}</div>
+                                            )}
                                         </div>
                                         <button onClick={() => { navigate('/perfil'); setShowUserMenu(false); }}
                                             style={{
@@ -191,7 +195,7 @@ const HeaderEstudiante = () => {
                                         >
                                             💳 Mis Pagos
                                         </button>
-                                        {usuario?.permisos?.length > 0 && (
+                                        {usuario && usuario.rol !== ROLES.ESTUDIANTE && usuario.rol !== ROLES.DOCENTE && (
                                             <button onClick={() => { toggleModoAdmin(); navigate('/admin'); setShowUserMenu(false); }}
                                                 style={{
                                                     width: '100%', background: 'linear-gradient(135deg,#eff6ff,#dbeafe)', border: 'none', padding: '0.6rem 1rem',

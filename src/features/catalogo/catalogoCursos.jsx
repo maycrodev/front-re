@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { getNombreCompleto } from '../../utils/roleUtils';
 import ModalPago from '../../components/pago/ModalPago';
 import CursoDetalle from '../../components/cursoDetalle/CursoDetalle';
 import { getToken } from '../../utils/tokenStore';
@@ -298,7 +299,7 @@ const CatalogoCursos = () => {
         {usuario && (
           <div className="info-sesion">
             <IconInfo />
-            <p>Bienvenido/a <strong>{usuario.nombre}</strong>. Selecciona los cursos que quieres tomar.</p>
+            <p>Bienvenido/a <strong>{getNombreCompleto(usuario) || usuario.nombre}</strong>. Selecciona los cursos que quieres tomar.</p>
           </div>
         )}
 

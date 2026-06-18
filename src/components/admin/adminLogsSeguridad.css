@@ -2,7 +2,7 @@
 
 .admin-logs-container.security-theme {
     padding: 2rem;
-    max-width: 1300px;
+    max-width: 98%;
     margin: 0 auto;
     background: radial-gradient(1200px circle at 50% 200px, rgba(245, 158, 11, 0.04), transparent 80%),
                 radial-gradient(800px circle at 10% 300px, rgba(239, 68, 68, 0.03), transparent 60%);

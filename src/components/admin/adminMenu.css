@@ -18,6 +18,12 @@
   margin: 0 auto;
 }
 
+.admin-main.logs-main-wide {
+  max-width: 100%;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
 /* ── Hero ─────────────────────────────────────────── */
 .admin-hero {
   position: relative;

@@ -79,6 +79,14 @@ const RiesgoDetalle = () => {
 
     useEffect(() => { cargar(); }, [cargar]);
 
+    // Limpia los mensajes de éxito/error al concluir una opción para que la
+    // pantalla no quede con texto residual de la acción anterior.
+    useEffect(() => {
+        if (!mensaje && !error) return;
+        const t = setTimeout(() => { setMensaje(''); setError(''); }, 4000);
+        return () => clearTimeout(t);
+    }, [mensaje, error]);
+
     const handleCambiarEstado = async () => {
         if (!nuevoEstado || nuevoEstado === registro.estado) return;
         try {

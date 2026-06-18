@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import jsPDF from 'jspdf';
 import logo from '../../assets/logo.png';
 import { useAuth } from '../../context/AuthContext';
+import { getNombreCompleto } from '../../utils/roleUtils';
 import { obtenerMisCursos, obtenerEstudiantesCurso, guardarNotasEstudiantes, obtenerMetricasCurso, cambiarEstadoCurso } from '../../services/docenteApi';
 import { validateNotas } from '../../utils/formValidators';
 import './docenteMenu.css';
@@ -139,6 +140,9 @@ const HomeDocente = () => {
     setModalActivo(null);
     setCursoActual(null);
     setMostrarConfirmacion(false);
+    // Limpia los datos de la opción anterior para que la pantalla no quede
+    // con el listado/notas del curso previo al abrir otro modal.
+    setAlumnosCurso([]);
   };
 
   const cambiarEstadoCursoHandler = async (nuevoEstado) => {
@@ -683,7 +687,7 @@ const HomeDocente = () => {
         {usuario && (
           <div className="info-sesion-docente">
             <IconInfo />
-            <p>Hola, <strong>Profesor {usuario.nombre || 'Docente'}</strong>. Aquí tienes el resumen de tu actividad reciente.</p>
+            <p>Hola, <strong>Profesor {getNombreCompleto(usuario) || usuario.nombre || 'Docente'}</strong>. Aquí tienes el resumen de tu actividad reciente.</p>
           </div>
         )}
 
