@@ -43,11 +43,7 @@ const stringifyDetail = (detail) => {
     catch { return String(detail); }
 };
 
-const NIVEL_META = {
-    INFO:  { cls: 'info',  icon: 'ℹ️' },
-    WARN:  { cls: 'warn',  icon: '⚠️' },
-    ERROR: { cls: 'error', icon: '🔴' },
-};
+
 
 const AdminLogsAplicacion = () => {
     const navigate = useNavigate();
@@ -58,7 +54,7 @@ const AdminLogsAplicacion = () => {
     const [total, setTotal]     = useState(0);
 
     // Filtros simplificados: solo los más útiles
-    const [nivel,  setNivel]  = useState('');
+    const [modulo, setModulo] = useState('');
     const [desde,  setDesde]  = useState('');
     const [hasta,  setHasta]  = useState('');
 
@@ -67,7 +63,7 @@ const AdminLogsAplicacion = () => {
             setLoading(true);
             setError('');
             const response = await getLogsAplicacion({
-                nivel:  params.nivel  ?? (nivel  || undefined),
+                modulo: params.modulo ?? (modulo || undefined),
                 desde:  params.desde  ?? (desde  || undefined),
                 hasta:  params.hasta  ?? (hasta  || undefined),
                 limite: 200,
@@ -80,15 +76,15 @@ const AdminLogsAplicacion = () => {
         } finally {
             setLoading(false);
         }
-    }, [nivel, desde, hasta]);
+    }, [modulo, desde, hasta]);
 
     useEffect(() => { fetchLogs(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const onSubmit = (e) => { e.preventDefault(); fetchLogs(); };
 
     const onLimpiar = () => {
-        setNivel(''); setDesde(''); setHasta('');
-        fetchLogs({ nivel: undefined, desde: undefined, hasta: undefined });
+        setModulo(''); setDesde(''); setHasta('');
+        fetchLogs({ modulo: undefined, desde: undefined, hasta: undefined });
     };
 
     return (
@@ -115,12 +111,14 @@ const AdminLogsAplicacion = () => {
                     <div className="logs-filtros-card">
                         <form className="logs-filtros-form logs-filtros-simple" onSubmit={onSubmit}>
                             <div className="filter-group">
-                                <label>Nivel</label>
-                                <select value={nivel} onChange={(e) => setNivel(e.target.value)}>
+                                <label>Módulo</label>
+                                <select value={modulo} onChange={(e) => setModulo(e.target.value)}>
                                     <option value="">Todos</option>
-                                    <option value="INFO">INFO</option>
-                                    <option value="WARN">WARN</option>
-                                    <option value="ERROR">ERROR</option>
+                                    <option value="cursos">Cursos</option>
+                                    <option value="inscripciones">Inscripciones</option>
+                                    <option value="pagos">Pagos</option>
+                                    <option value="facturas">Facturas</option>
+                                    <option value="docentes">Docentes</option>
                                 </select>
                             </div>
 
@@ -151,7 +149,7 @@ const AdminLogsAplicacion = () => {
                                 <thead>
                                     <tr>
                                         <th style={{ width: '170px' }}>Fecha</th>
-                                        <th style={{ width: '90px'  }}>Nivel</th>
+
                                         <th style={{ width: '200px' }}>Módulo / Evento</th>
                                         <th>Mensaje</th>
                                         <th style={{ width: '190px' }}>Usuario</th>
@@ -161,23 +159,16 @@ const AdminLogsAplicacion = () => {
                                 <tbody>
                                     {logs.length === 0 ? (
                                         <tr>
-                                            <td colSpan="6" className="logs-empty">
+                                            <td colSpan="5" className="logs-empty">
                                                 <div className="logs-empty-icon">📊</div>
                                                 No se encontraron registros de funcionalidades críticas.
                                             </td>
                                         </tr>
                                     ) : (
-                                        logs.map((item) => {
-                                            const meta = NIVEL_META[item.nivel] ?? NIVEL_META.INFO;
-                                            return (
+                                        logs.map((item) => (
                                                 <tr key={item.id}>
                                                     <td>
                                                         <span className="logs-fecha">{formatDate(item.fecha)}</span>
-                                                    </td>
-                                                    <td>
-                                                        <span className={`logs-level-badge ${meta.cls}`}>
-                                                            {meta.icon} {item.nivel || 'INFO'}
-                                                        </span>
                                                     </td>
                                                     <td>
                                                         <span className="logs-modulo">{item.modulo || '-'}</span>
@@ -204,8 +195,8 @@ const AdminLogsAplicacion = () => {
                                                         )}
                                                     </td>
                                                 </tr>
-                                            );
-                                        })
+                                            )
+                                        )
                                     )}
                                 </tbody>
                             </table>
